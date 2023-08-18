@@ -1,11 +1,4 @@
-#include <QApplication>
-#include <QWidget>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QMessageBox>
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -42,94 +35,54 @@ private:
     std::vector<Book> books;
 };
 
-class LibraryApp : public QWidget {
-public:
-    LibraryApp(QWidget* parent = nullptr) : QWidget(parent) {
-        setupUI();
-        connectSignals();
-    }
+int main() {
+    Library library;
 
-private:
-    void setupUI() {
-        QVBoxLayout* layout = new QVBoxLayout;
+    // Adding books to the library
+    library.addBook(Book("The Catcher in the Rye", "J.D. Salinger", "978-0-316-76949-4"));
+    library.addBook(Book("To Kill a Mockingbird", "Harper Lee", "978-0-06-112008-4"));
+    library.addBook(Book("1984", "George Orwell", "978-0-452-28423-4"));
 
-        titleLabel = new QLabel("Library Management System");
-        titleLabel->setAlignment(Qt::AlignCenter);
+    std::cout << "Welcome to the Library Management System!\n";
 
-        borrowButton = new QPushButton("Borrow Book");
-        returnButton = new QPushButton("Return Book");
-        exitButton = new QPushButton("Exit");
+    while (true) {
+        std::cout << "\n1. Borrow a book\n2. Return a book\n3. Exit\n";
+        int choice;
+        std::cin >> choice;
 
-        bookTitleLineEdit = new QLineEdit;
-        bookTitleLineEdit->setPlaceholderText("Enter book title");
+        if (choice == 1) {
+            std::string title;
+            std::cout << "Enter the title of the book you want to borrow: ";
+            std::cin.ignore();
+            std::getline(std::cin, title);
 
-        QHBoxLayout* buttonLayout = new QHBoxLayout;
-        buttonLayout->addWidget(borrowButton);
-        buttonLayout->addWidget(returnButton);
-
-        layout->addWidget(titleLabel);
-        layout->addWidget(bookTitleLineEdit);
-        layout->addLayout(buttonLayout);
-        layout->addWidget(exitButton);
-
-        setLayout(layout);
-        setWindowTitle("Library App");
-    }
-
-    void connectSignals() {
-        connect(borrowButton, &QPushButton::clicked, this, &LibraryApp::borrowBook);
-        connect(returnButton, &QPushButton::clicked, this, &LibraryApp::returnBook);
-        connect(exitButton, &QPushButton::clicked, this, &LibraryApp::exitApp);
-    }
-
-    void borrowBook() {
-        QString bookTitle = bookTitleLineEdit->text();
-        if (!bookTitle.isEmpty()) {
-            Book* foundBook = library.findBook(bookTitle.toStdString());
+            Book* foundBook = library.findBook(title);
             if (foundBook) {
                 foundBook->borrowBook();
-                QMessageBox::information(this, "Borrow Book", "You have successfully borrowed the book.");
+                std::cout << "You have successfully borrowed '" << foundBook->getTitle() << "'. Enjoy your reading!\n";
             } else {
-                QMessageBox::warning(this, "Borrow Book", "Book not available or not found.");
+                std::cout << "Sorry, the book is either unavailable or not in the library.\n";
             }
-        } else {
-            QMessageBox::warning(this, "Borrow Book", "Please enter a valid book title.");
-        }
-    }
+        } else if (choice == 2) {
+            std::string title;
+            std::cout << "Enter the title of the book you want to return: ";
+            std::cin.ignore();
+            std::getline(std::cin, title);
 
-    void returnBook() {
-        QString bookTitle = bookTitleLineEdit->text();
-        if (!bookTitle.isEmpty()) {
-            Book* foundBook = library.findBook(bookTitle.toStdString());
+            Book* foundBook = library.findBook(title);
             if (foundBook) {
                 foundBook->returnBook();
-                QMessageBox::information(this, "Return Book", "Thank you for returning the book.");
+                std::cout << "Thank you for returning '" << foundBook->getTitle() << "'.\n";
             } else {
-                QMessageBox::warning(this, "Return Book", "Book not found.");
+                std::cout << "This book doesn't belong to our library.\n";
             }
+        } else if (choice == 3) {
+            std::cout << "Goodbye!\n";
+            break;
         } else {
-            QMessageBox::warning(this, "Return Book", "Please enter a valid book title.");
+            std::cout << "Invalid choice. Please select a valid option.\n";
         }
     }
 
-    void exitApp() {
-        close();
-    }
-
-private:
-    QLabel* titleLabel;
-    QPushButton* borrowButton;
-    QPushButton* returnButton;
-    QPushButton* exitButton;
-    QLineEdit* bookTitleLineEdit;
-    Library library;
-};
-
-int main(int argc, char** argv) {
-    QApplication app(argc, argv);
-
-    LibraryApp libraryApp;
-    libraryApp.show();
-
-    return app.exec();
+    return 0;
 }
